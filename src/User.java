@@ -1,18 +1,15 @@
 public class User {
     private int id;
     private String email,username,password;
-   private static  int nextId =0;
+
 
     public User( String email, String username, String password) {
-        this.id = nextId;
-        nextId++;
         this.email = email;
         this.username = username;
         this.password = password;
     }
     public User(){
     }
-
 
     protected int getId() {
         return id;

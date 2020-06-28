@@ -1,4 +1,5 @@
 import org.apache.commons.lang3.ArrayUtils;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +18,7 @@ public class UserDAO {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getEmail());
             statement.setString(2, user.getUsername());
-            statement.setString(3, user.getPassword());
+            statement.setString(3, BCrypt.hashpw(user.getPassword(),BCrypt.gensalt()));
             statement.executeUpdate();
             System.out.println("User create complete");
         } catch (SQLException e) {
@@ -49,11 +50,18 @@ public class UserDAO {
     }
 
     public void update(User user) throws SQLException {
-        String query = "UPDATE users SET email =?,username =?, pssword =? WHERE id =?;";
+        String query = "UPDATE users SET email =?,username =?, pssword =? WHERE id =?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
+
+            if (user.getPassword().equals(read(user.getId()).getPassword()))
+            {
+                statement.setString(3, user.getPassword());
+            }
+            else{
+                statement.setString(3,BCrypt.hashpw(user.getPassword(),BCrypt.gensalt()));
+            }
             statement.setString(1, user.getEmail());
             statement.setString(2, user.getUsername());
-            statement.setString(3, user.getPassword());
             statement.setString(4, String.valueOf(user.getId()));
             statement.executeUpdate();
             System.out.println("Update complete");
